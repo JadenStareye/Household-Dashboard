@@ -1,0 +1,150 @@
+{
+  "planPath": "docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md",
+  "tasks": [
+    {
+      "id": 0,
+      "subject": "Task 0: Start the repo from a data-free copy",
+      "status": "pending",
+      "description": "**Goal:** The new repo holds a working copy of the single-household app with every household-specific content file left behind, and its tests pass.\n\n**Files:**\n- Create: `server.py`, `dashboard/`, `web/`, `scripts/`, `tests/`, `.gitignore` (copied)\n- Do not copy: `content/`, `data/`, `docs/`, `start.bat`, `install_startup.ps1`, `README.md`, `PRODUCT.md`, `.git`, `tests/test_content_chores.py`, `tests/test_content_recipes.py`\n\n**Acceptance Criteria:**\n- [ ] No `content/` or `data/` folder exists in the new repo\n- [ ] The two content tests are gone and the remaining suite passes\n- [ ] `origin/main` contains the initial commit\n\n**Verify:** `python -m unittest discover -s tests -t .` -> `Ran 316 tests ... OK (skipped=2)`\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 0: Start the repo from a data-free copy\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"No `content/` or `data/` folder exists in the new repo\", \"The two content tests are gone and the remaining suite passes\", \"`origin/main` contains the initial commit\"], \"verifyCommand\": \"`python -m unittest discover -s tests -t .` -> `Ran 316 tests ... OK (skipped=2)`\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 1,
+      "subject": "Task 1: Cleaning plan generator",
+      "status": "pending",
+      "description": "**Goal:** A pure function turns a household's rooms and a minutes goal into a Monday to Friday cleaning rotation with a per-day summary and warnings.\n\n**Files:**\n- Create: `dashboard/chores_gen.py`\n- Test: `tests/test_chores_gen.py`\n\n**Acceptance Criteria:**\n- [ ] Rotation uses only Monday to Friday, one day per rule\n- [ ] Low-use rooms get a single light-touch task\n- [ ] Every room lands on exactly one day and load is balanced (busiest and lightest day differ by at most 12 minutes for a typical home)\n- [ ] An overloaded week produces a plain-language warning\n- [ ] Rule ids are unique and start with `gen-`; the same rooms always give the same rotation\n\n**Verify:** `python -m unittest tests.test_chores_gen -v` -> 12 tests OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 1: Cleaning plan generator\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"Rotation uses only Monday to Friday, one day per rule\", \"Low-use rooms get a single light-touch task\", \"Every room lands on exactly one day and load is balanced (busiest and lightest day differ by at most 12 minutes for a typical home)\", \"An overloaded week produces a plain-language warning\", \"Rule ids are unique and start with `gen-`; the same rooms always give the same rotation\"], \"verifyCommand\": \"`python -m unittest tests.test_chores_gen -v` -> 12 tests OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Household config, packs loader, paths",
+      "status": "pending",
+      "description": "**Goal:** Validated household configuration with atomic saving, backups and recovery; a starter-pack loader that builds each meal's recipe pool; the data-folder helper; and a placeholder example household.\n\n**Files:**\n- Create: `dashboard/paths.py`, `dashboard/packs.py`, `dashboard/household.py`, `examples/household.example.json`\n- Modify: `dashboard/store.py` (adds shared `atomic_write_json`)\n- Test: `tests/test_packs.py`, `tests/test_household.py`, `tests/test_examples.py`\n\n**Acceptance Criteria:**\n- [ ] `household.validate` returns a clean household or raises `ValueError` with a plain message; validating its own output changes nothing\n- [ ] A missing `household.json` reads as `None` (first run); a corrupt or invalid one falls back to the newest valid backup; only the newest 10 backups are kept\n- [ ] A meal's pool is the recipes of its packs carrying every chosen tag plus all of the household's own recipes\n- [ ] Starter-pack recipe ids are namespaced `<pack>.<recipe>`; broken pack files are skipped, never fatal\n- [ ] `store.py` keeps its behavior (existing `test_store` still passes)\n- [ ] `examples/household.example.json` validates unchanged\n\n**Verify:** `python -m unittest tests.test_packs tests.test_household tests.test_examples tests.test_store` -> OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 2: Household config, packs loader, paths\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"`household.validate` returns a clean household or raises `ValueError` with a plain message; validating its own output changes nothing\", \"A missing `household.json` reads as `None` (first run); a corrupt or invalid one falls back to the newest valid backup; only the newest 10 backups are kept\", \"A meal's pool is the recipes of its packs carrying every chosen tag plus all of the household's own recipes\", \"Starter-pack recipe ids are namespaced `<pack>.<recipe>`; broken pack files are skipped, never fatal\", \"`store.py` keeps its behavior (existing `test_store` still passes)\", \"`examples/household.example.json` validates unchanged\"], \"verifyCommand\": \"`python -m unittest tests.test_packs tests.test_household tests.test_examples tests.test_store` -> OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Place search and configurable weather/alerts",
+      "status": "pending",
+      "description": "**Goal:** Weather and alerts use the household's chosen place and unit instead of fixed coordinates, and a geocoder can turn a typed town or ZIP code into coordinates.\n\n**Files:**\n- Create: `dashboard/geocode.py`\n- Modify: `dashboard/weather.py`, `dashboard/alerts.py` (through a patch script)\n- Test: `tests/test_geocode.py`, `tests/test_locations.py`\n\n**Acceptance Criteria:**\n- [ ] Forecast and air-quality URLs use the chosen latitude and longitude, `timezone=auto`, and Fahrenheit or Celsius\n- [ ] `WeatherService.set_location` clears the cached forecast and the output carries `unit`\n- [ ] With no location the real fetch reports `{available: False}` instead of crashing\n- [ ] Alerts run only for a place that opted in (`alerts: true`); `set_location` forgets old alerts\n- [ ] Geocoder parsing tolerates junk and skips rows without coordinates; network errors propagate\n\n**Verify:** `python -m unittest tests.test_geocode tests.test_locations tests.test_weather tests.test_alerts` -> OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 3: Place search and configurable weather/alerts\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"Forecast and air-quality URLs use the chosen latitude and longitude, `timezone=auto`, and Fahrenheit or Celsius\", \"`WeatherService.set_location` clears the cached forecast and the output carries `unit`\", \"With no location the real fetch reports `{available: False}` instead of crashing\", \"Alerts run only for a place that opted in (`alerts: true`); `set_location` forgets old alerts\", \"Geocoder parsing tolerates junk and skips rows without coordinates; network errors propagate\"], \"verifyCommand\": \"`python -m unittest tests.test_geocode tests.test_locations tests.test_weather tests.test_alerts` -> OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        0
+      ]
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Household API and generic meal slots",
+      "status": "pending",
+      "description": "**Goal:** The API can save and read a household, preview and rebuild the cleaning plan, search places, and serves dinners for any number of named meal slots instead of two fixed ones.\n\n**Files:**\n- Modify: `dashboard/api.py` (through a patch script), `tests/test_api.py` (rename fixtures, one assertion)\n- Modify (rename only): `tests/test_dinners.py`, `tests/test_server.py`, `tests/test_web_assets.py`\n- Test: `tests/test_household_api.py`\n\n**Acceptance Criteria:**\n- [ ] `GET /api/state` reports `needsSetup`, `household`, `slots`, and `dinners` keyed by slot id\n- [ ] `PUT /api/household` validates, saves, rebuilds each meal's recipes, repoints weather and alerts, and deals dinners; bad input returns 400 and changes nothing\n- [ ] With `regenerateChores`, generated rules (`gen-...`) and today's unfinished generated tasks are replaced; finished tasks and hand-made rules stay\n- [ ] `POST /api/chores/preview`, `GET /api/household/meta`, `POST /api/geocode` work; a failed place search is a gentle 502 mentioning the internet\n- [ ] Swap, favorite, hide, restore and plan work on every meal; an unknown meal id is 404\n- [ ] No test fixture still uses the original household's names\n\n**Verify:** `python -m unittest tests.test_household_api tests.test_api` -> OK, then the full suite -> OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 4: Household API and generic meal slots\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"`GET /api/state` reports `needsSetup`, `household`, `slots`, and `dinners` keyed by slot id\", \"`PUT /api/household` validates, saves, rebuilds each meal's recipes, repoints weather and alerts, and deals dinners; bad input returns 400 and changes nothing\", \"With `regenerateChores`, generated rules (`gen-...`) and today's unfinished generated tasks are replaced; finished tasks and hand-made rules stay\", \"`POST /api/chores/preview`, `GET /api/household/meta`, `POST /api/geocode` work; a failed place search is a gentle 502 mentioning the internet\", \"Swap, favorite, hide, restore and plan work on every meal; an unknown meal id is 404\", \"No test fixture still uses the original household's names\"], \"verifyCommand\": \"`python -m unittest tests.test_household_api tests.test_api` -> OK, then the full suite -> OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Server data folder and port fallback",
+      "status": "pending",
+      "description": "**Goal:** The server reads and writes the household's own folder, starts with no household (first run), and takes the next free port when 8765 is busy.\n\n**Files:**\n- Modify: `server.py` (through a patch script)\n- Test: `tests/test_server_ports.py`\n\n**Acceptance Criteria:**\n- [ ] `build_app()` uses `%APPDATA%\\HomeDashboard` (or `HOME_DASHBOARD_DATA`) and bundled `packs/`; a fresh folder reports `needsSetup`\n- [ ] `open_server` skips busy ports (including on Windows, where shared ports must be refused) and raises when none is free\n- [ ] `python server.py` prints the address it is serving\n\n**Verify:** `python -m unittest tests.test_server_ports tests.test_server` -> OK, then the full suite -> OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 5: Server data folder and port fallback\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"`build_app()` uses `%APPDATA%\\\\HomeDashboard` (or `HOME_DASHBOARD_DATA`) and bundled `packs/`; a fresh folder reports `needsSetup`\", \"`open_server` skips busy ports (including on Windows, where shared ports must be refused) and raises when none is free\", \"`python server.py` prints the address it is serving\"], \"verifyCommand\": \"`python -m unittest tests.test_server_ports tests.test_server` -> OK, then the full suite -> OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        2,
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Four starter packs and the link checker",
+      "status": "pending",
+      "description": "**Goal:** Four curated starter packs of at least 20 recipes each ship in `packs/`, every link works, and none of the original household's recipes are used.\n\n**Files:**\n- Create: `packs/family-classics.json`, `packs/quick-weeknight.json`, `packs/vegetarian.json`, `packs/low-carb.json`\n- Replace: `scripts/check_links.py`\n- Test: `tests/test_content_packs.py`\n\n**Acceptance Criteria:**\n- [ ] Exactly four packs ship; each id matches its file name and each has a description and at least 20 recipes\n- [ ] Every recipe has an https link, minutes and at least one tag from the fixed tag list; no link or name repeats anywhere across the packs\n- [ ] `vegetarian` recipes carry `vegetarian` (or `vegan`), `low-carb` recipes carry `low-carb`, `quick-weeknight` recipes carry `quick` and take 30 minutes or less\n- [ ] No recipe URL matches any URL in the original household's `content/recipes.json`\n- [ ] `python scripts/check_links.py` reports 0 failures\n\n**Verify:** `python -m unittest tests.test_content_packs` -> OK and `python scripts/check_links.py` -> `N links checked, 0 failures`\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 6: Four starter packs and the link checker\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"Exactly four packs ship; each id matches its file name and each has a description and at least 20 recipes\", \"Every recipe has an https link, minutes and at least one tag from the fixed tag list; no link or name repeats anywhere across the packs\", \"`vegetarian` recipes carry `vegetarian` (or `vegan`), `low-carb` recipes carry `low-carb`, `quick-weeknight` recipes carry `quick` and take 30 minutes or less\", \"No recipe URL matches any URL in the original household's `content/recipes.json`\", \"`python scripts/check_links.py` reports 0 failures\"], \"verifyCommand\": \"`python -m unittest tests.test_content_packs` -> OK and `python scripts/check_links.py` -> `N links checked, 0 failures`\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Dashboard meal sections, modules, scaling",
+      "status": "pending",
+      "description": "**Goal:** The dashboard draws one section per meal from the household, shows the household name, hides switched-off modules, shows the chosen temperature unit, and scales itself to any window.\n\n**Files:**\n- Create: `web/household.js` (part 1), `tests/webcase.py`, `tests/test_household_web.py`\n- Modify: `web/index.html`, `web/app.js`, `web/app.css`, `web/plans.js`, `tests/test_web_assets.py` (through patch scripts)\n\n**Acceptance Criteria:**\n- [ ] `index.html` has one empty `#dinners` container and no hardcoded dinner sections; the old dinner code is gone from `app.js`\n- [ ] Each enabled meal renders three cards, a Favorites row and a Hidden recipes list; ribbon colors cycle through four\n- [ ] Switched-off modules (weather, tasks, plans, shopping, timers) disappear and the rest expand; the weather shows the household's unit\n- [ ] At 1920x1080 the page fits with no scrolling; at 1366x768 it is scaled (zoom about 0.71) and still fits\n- [ ] No web file contains the original household's names, town or coordinates\n- [ ] The six web-asset tests that pinned the old dinner markup are re-pointed and pass\n\n**Verify:** `python -m unittest tests.test_household_web tests.test_web_assets` -> OK; browser check below\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 7: Dashboard meal sections, modules, scaling\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"`index.html` has one empty `#dinners` container and no hardcoded dinner sections; the old dinner code is gone from `app.js`\", \"Each enabled meal renders three cards, a Favorites row and a Hidden recipes list; ribbon colors cycle through four\", \"Switched-off modules (weather, tasks, plans, shopping, timers) disappear and the rest expand; the weather shows the household's unit\", \"At 1920x1080 the page fits with no scrolling; at 1366x768 it is scaled (zoom about 0.71) and still fits\", \"No web file contains the original household's names, town or coordinates\", \"The six web-asset tests that pinned the old dinner markup are re-pointed and pass\"], \"verifyCommand\": \"`python -m unittest tests.test_household_web tests.test_web_assets` -> OK; browser check below\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Household, Rooms and Meals settings tabs",
+      "status": "pending",
+      "description": "**Goal:** Settings gains Household, Rooms and Meals tabs that edit one draft and save it together, with a location search, a weekly cleaning-plan preview, meal and own-recipe editing, and a guard against losing unsaved changes.\n\n**Files:**\n- Modify: `web/household.js` (append part 2), `web/index.html`, `web/app.js`, `web/app.css` (through a patch script)\n- Test: `tests/test_household_settings_web.py`\n\n**Acceptance Criteria:**\n- [ ] Settings has six tabs: Appearance, Household, Rooms, Meals, Repeating tasks, Dates\n- [ ] Household tab: name, place search (with a manual coordinates fallback), temperature unit, module switches, Save changes, Discard changes, Run setup again\n- [ ] Rooms tab: rooms with type and use, minutes goal, Show weekly plan, Save rooms, Save and rebuild cleaning plan\n- [ ] Meals tab: add or remove meals, tick packs, tag filters, own recipes; a meal that is switched off disappears from the dashboard\n- [ ] Closing Settings with unsaved changes is refused with a plain message; the idle timeout still closes it\n- [ ] All new controls are at least 52px tall\n\n**Verify:** `python -m unittest tests.test_household_settings_web tests.test_household_web tests.test_web_assets` -> OK; browser check below\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 8: Household, Rooms and Meals settings tabs\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"Settings has six tabs: Appearance, Household, Rooms, Meals, Repeating tasks, Dates\", \"Household tab: name, place search (with a manual coordinates fallback), temperature unit, module switches, Save changes, Discard changes, Run setup again\", \"Rooms tab: rooms with type and use, minutes goal, Show weekly plan, Save rooms, Save and rebuild cleaning plan\", \"Meals tab: add or remove meals, tick packs, tag filters, own recipes; a meal that is switched off disappears from the dashboard\", \"Closing Settings with unsaved changes is refused with a plain message; the idle timeout still closes it\", \"All new controls are at least 52px tall\"], \"verifyCommand\": \"`python -m unittest tests.test_household_settings_web tests.test_household_web tests.test_web_assets` -> OK; browser check below\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        7
+      ]
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Setup wizard",
+      "status": "pending",
+      "description": "**Goal:** A first-run wizard walks a new household through name, place, rooms, the weekly cleaning plan, meals and modules, then opens their dashboard; the same wizard is reachable from Settings as Run setup again.\n\n**Files:**\n- Create: `web/wizard.js`, `tests/test_wizard_web.py`\n- Modify: `web/index.html`, `web/app.js`, `web/app.css` (through a patch script)\n\n**Acceptance Criteria:**\n- [ ] A fresh data folder opens the wizard automatically and the background is locked (inert) while it is open\n- [ ] Seven steps with Back and Next; Next on the name and place steps explains in plain words what is missing\n- [ ] The place step searches by city or ZIP, lists matches, and offers manual coordinates if the lookup fails\n- [ ] The plan step shows the Monday to Friday preview from the server; the meals step pre-selects the `family-classics` pack when it exists\n- [ ] Finishing saves the household with `regenerateChores: true`, closes the wizard and shows the dashboard\n- [ ] Re-running from Settings pre-fills everything, has Cancel (and Escape), and keeps favorites and hidden recipes\n\n**Verify:** `python -m unittest tests.test_wizard_web` -> OK, full suite -> OK; browser walkthrough below\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 9: Setup wizard\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"A fresh data folder opens the wizard automatically and the background is locked (inert) while it is open\", \"Seven steps with Back and Next; Next on the name and place steps explains in plain words what is missing\", \"The place step searches by city or ZIP, lists matches, and offers manual coordinates if the lookup fails\", \"The plan step shows the Monday to Friday preview from the server; the meals step pre-selects the `family-classics` pack when it exists\", \"Finishing saves the household with `regenerateChores: true`, closes the wizard and shows the dashboard\", \"Re-running from Settings pre-fills everything, has Cancel (and Escape), and keeps favorites and hidden recipes\"], \"verifyCommand\": \"`python -m unittest tests.test_wizard_web` -> OK, full suite -> OK; browser walkthrough below\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        8
+      ]
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Check the layout at four window sizes",
+      "status": "pending",
+      "description": "**Goal:** The scaled and stacked layouts are confirmed (and fixed if needed) at wall-display, laptop, tablet and phone-sized windows, including a household with three meals.\n\n**Files:**\n- Modify (only if a check fails): `web/household.js`, `web/app.css`\n\n**Acceptance Criteria:**\n- [ ] 1920x1080: zoom 1, no scrolling\n- [ ] 1366x768 and 1280x720: zoom about 0.71 and 0.67, no scrolling\n- [ ] 1024x768 and 768x1024: stacked single column that scrolls vertically with no horizontal overflow\n- [ ] With three meals at 1920x1080 the page itself does not scroll; the meal column scrolls inside itself and text size is unchanged\n- [ ] A wizard step and a Settings tab are fully usable (nothing cut off) at 1366x768 and 768x1024\n\n**Verify:** The console check below reports the expected values at each size\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 10: Check the layout at four window sizes\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"1920x1080: zoom 1, no scrolling\", \"1366x768 and 1280x720: zoom about 0.71 and 0.67, no scrolling\", \"1024x768 and 768x1024: stacked single column that scrolls vertically with no horizontal overflow\", \"With three meals at 1920x1080 the page itself does not scroll; the meal column scrolls inside itself and text size is unchanged\", \"A wizard step and a Settings tab are fully usable (nothing cut off) at 1366x768 and 768x1024\"], \"verifyCommand\": \"The console check below reports the expected values at each size\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        9
+      ]
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Launcher",
+      "status": "pending",
+      "description": "**Goal:** One entry point that the installed app runs: it starts the server if it is not already running, records its port, and opens the dashboard fullscreen in Edge (or the default browser).\n\n**Files:**\n- Create: `launcher.py`\n- Test: `tests/test_launcher.py`\n\n**Acceptance Criteria:**\n- [ ] A second launch finds the running dashboard through `port.txt` and only opens the browser\n- [ ] A stale, missing or garbage `port.txt` means nothing is running\n- [ ] Edge starts with `--kiosk`, fullscreen and its own profile folder; without Edge the default browser is used\n- [ ] `HOME_DASHBOARD_NO_BROWSER=1` opens nothing (used by the build smoke test)\n\n**Verify:** `python -m unittest tests.test_launcher` -> 7 tests OK\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 11: Launcher\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"A second launch finds the running dashboard through `port.txt` and only opens the browser\", \"A stale, missing or garbage `port.txt` means nothing is running\", \"Edge starts with `--kiosk`, fullscreen and its own profile folder; without Edge the default browser is used\", \"`HOME_DASHBOARD_NO_BROWSER=1` opens nothing (used by the build smoke test)\"], \"verifyCommand\": \"`python -m unittest tests.test_launcher` -> 7 tests OK\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        5
+      ]
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: Packaging (PyInstaller and Inno Setup)",
+      "status": "pending",
+      "description": "**Goal:** A build script produces a self-contained `HomeDashboard.exe` folder (and an installer when Inno Setup 6 is available), and a smoke test proves the built app serves the dashboard and asks for first-run setup.\n\n**Files:**\n- Create: `packaging/HomeDashboard.spec`, `packaging/build.ps1`, `packaging/smoke_test.ps1`, `packaging/installer.iss`\n\n**Acceptance Criteria:**\n- [ ] `build.ps1` makes `dist\\HomeDashboard\\HomeDashboard.exe` with the web files and packs bundled and no console window\n- [ ] `smoke_test.ps1` prints `OK: ... served the page, asked for setup, and listed 4 starter packs` and leaves no process running\n- [ ] The build never touches the global Python (uses `.venv-build`) and never writes inside the install or data folders\n- [ ] If Inno Setup 6 is installed, `dist\\HomeDashboard-Setup-1.0.0.exe` is produced; if not, the report says the installer script is uncompiled\n\n**Verify:** `powershell -ExecutionPolicy Bypass -File packaging\\smoke_test.ps1` -> `OK: http://127.0.0.1:87xx served the page, asked for setup, and listed 4 starter packs`\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 12: Packaging (PyInstaller and Inno Setup)\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"`build.ps1` makes `dist\\\\HomeDashboard\\\\HomeDashboard.exe` with the web files and packs bundled and no console window\", \"`smoke_test.ps1` prints `OK: ... served the page, asked for setup, and listed 4 starter packs` and leaves no process running\", \"The build never touches the global Python (uses `.venv-build`) and never writes inside the install or data folders\", \"If Inno Setup 6 is installed, `dist\\\\HomeDashboard-Setup-1.0.0.exe` is produced; if not, the report says the installer script is uncompiled\"], \"verifyCommand\": \"`powershell -ExecutionPolicy Bypass -File packaging\\\\smoke_test.ps1` -> `OK: http://127.0.0.1:87xx served the page, asked for setup, and listed 4 starter packs`\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [
+        6,
+        9,
+        11
+      ]
+    },
+    {
+      "id": 13,
+      "subject": "Task 13: Docs, scrub and release check",
+      "status": "pending",
+      "description": "**Goal:** The repo is documented for developers and for households, contains nothing from the original household, and everything is pushed.\n\n**Files:**\n- Create: `README.md`, `PRODUCT.md`, `docs/INSTALL.md`\n\n**Acceptance Criteria:**\n- [ ] README explains what the app is, how to run, test and build it, and the folder layout; INSTALL.md walks a non-technical household through install and first run, including the SmartScreen warning\n- [ ] A search of the repo (excluding `.git`, `docs/superpowers`, build output) finds the original household's names, town or coordinates only inside the two tests that assert their absence\n- [ ] The full test suite passes\n- [ ] `origin/main` has all commits\n\n**Verify:** `python -m unittest discover -s tests -t .` -> OK; the scrub search below prints only the two allowed files\n\nFull steps and code: `docs/superpowers/plans/2026-10-08-configurable-household-dashboard.md`, section \"Task 13: Docs, scrub and release check\".\n\n```json:metadata\n{\"acceptanceCriteria\": [\"README explains what the app is, how to run, test and build it, and the folder layout; INSTALL.md walks a non-technical household through install and first run, including the SmartScreen warning\", \"A search of the repo (excluding `.git`, `docs/superpowers`, build output) finds the original household's names, town or coordinates only inside the two tests that assert their absence\", \"The full test suite passes\", \"`origin/main` has all commits\"], \"verifyCommand\": \"`python -m unittest discover -s tests -t .` -> OK; the scrub search below prints only the two allowed files\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    }
+  ],
+  "lastUpdated": "2026-10-08T00:00:00Z"
+}
