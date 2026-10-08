@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="alert-bar" id="alert-bar" role="alert" hidden></div>
+  <header class="top">
+    <div class="clock">
+      <div class="stamp"><div id="time"></div><div id="date"></div></div>
+      <div class="views" id="views" role="tablist" aria-label="Screens"></div>
+    </div>
+    <div class="weather" id="weather"></div>
+    <div class="outlook" id="outlook"></div>
+    <button type="button" class="gear" id="gear" aria-label="Settings" aria-haspopup="dialog"></button>
+  </header>
+  <main id="today-view" role="tabpanel" aria-labelledby="tab-today">
+    <section class="card tasks">
+      <div class="card-head">
+        <h2>Today's tasks</h2>
+        <button type="button" class="nudge" id="nudge" hidden></button>
+      </div>
+      <div class="soon" id="soon" hidden></div>
+      <svg class="flourish" viewBox="0 0 320 16" aria-hidden="true">
+        <path d="M2 8h126M192 8h126"/>
+        <path d="M160 1.5 169 8 160 14.5 151 8Z"/>
+        <path d="M140 8c4-5 8-5 12 0M180 8c-4-5-8-5-12 0"/>
+      </svg>
+      <div class="progress" id="progress" hidden><span id="progress-text"></span><span class="stitches" id="stitches"></span></div>
+      <div class="scroll">
+        <div id="carryover"></div>
+        <ul id="task-list"></ul>
+      </div>
+      <form id="add-form">
+        <input id="add-input" type="text" placeholder="What needs doing?" autocomplete="off" maxlength="200">
+        <button type="submit" class="primary">Add a task</button>
+        <div class="seg" id="when" role="group" aria-label="When"></div>
+        <input id="add-date" type="date" aria-label="Pick a date" hidden>
+      </form>
+      <div class="below">
+        <button type="button" class="link" id="upcoming-toggle" hidden></button>
+        <span class="added" id="added" role="status"></span>
+      </div>
+      <div id="upcoming-panel" class="upcoming" hidden></div>
+    </section>
+    <div class="dinners">
+      <section class="card" id="chris">
+        <h2>Chris Dinner</h2>
+        <div class="cards"></div>
+        <div class="favrow">
+          <h3>Favorites</h3>
+          <div class="favs"></div>
+        </div>
+      </section>
+      <section class="card" id="v">
+        <h2>V's Dinner</h2>
+        <div class="cards"></div>
+        <button type="button" class="link" id="hidden-toggle"></button>
+        <div id="hidden-panel" hidden></div>
+      </section>
+    </div>
+  </main>
+  <div class="plans-view" id="plans-view" role="tabpanel" aria-labelledby="tab-plans" hidden>
+    <section class="card plan-list-card">
+      <h2>Dinner plans</h2>
+      <button type="button" class="primary" id="plan-new">New dinner plan</button>
+      <div class="scroll" id="plan-list"></div>
+    </section>
+    <section class="card plan-detail" id="plan-detail"></section>
+  </div>
+  <div class="shopping-view" id="shopping-view" role="tabpanel" aria-labelledby="tab-shopping" hidden>
+    <section class="card shopping-card">
+      <h2>Shopping list</h2>
+      <form class="shopping-add" id="shopping-add" novalidate>
+        <input id="shopping-input" type="text" maxlength="200" autocomplete="off" placeholder="Add an item" aria-label="Add an item">
+        <button type="submit" class="primary">Add</button>
+      </form>
+      <p class="shopping-error" id="shopping-error" role="alert" hidden></p>
+      <div class="shopping-bar">
+        <span class="shopping-count" id="shopping-count" hidden></span>
+        <button type="button" class="ghost shopping-clear" id="shopping-clear" hidden>Clear checked</button>
+      </div>
+      <div class="shopping-list" id="shopping-list"></div>
+    </section>
+  </div>
+  <div class="timers-view" id="timers-view" role="tabpanel" aria-labelledby="tab-timers" hidden>
+    <section class="card timers-card">
+      <h2>Timers</h2>
+      <div class="timer-presets" id="timer-presets"></div>
+      <div class="timer-list" id="timer-list"></div>
+    </section>
+  </div>
+  <div id="settings" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <button type="button" class="icon sheet-close" id="settings-close" aria-label="Close settings"></button>
+      <h2 id="settings-title">Settings</h2>
+      <div class="tabs" role="tablist" id="settings-tabs"></div>
+      <div class="panel" id="panel-appearance" role="tabpanel"></div>
+      <div class="panel" id="panel-rules" role="tabpanel" hidden></div>
+      <div class="panel" id="panel-dates" role="tabpanel" hidden></div>
+      <div class="sheet-foot"><button type="button" class="primary" id="settings-done">Done</button></div>
+    </div>
+  </div>
+  <div id="error" class="error" role="alert" hidden></div>
+  <div id="undo" class="undo" role="status" hidden><span id="undo-label"></span><button type="button" id="undo-btn">Undo</button></div>
+  <script src="plans.js"></script>
+  <script src="shopping.js"></script>
+  <script src="alerts.js"></script>
+  <script src="app.js"></script>
+  <script src="timers.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+data/
+__pycache__/
+*.pyc
+.superpowers/
+.impeccable/
+.demo-data/
+build/
+dist/
+.venv*/
